@@ -817,6 +817,13 @@ namespace similarity {
         writeBinaryPOD(output, maxM_);
         writeBinaryPOD(output, maxM0_);
 
+        writeBinaryPOD(output, size_t(this->data_.size()));
+        for (unsigned i = 0; i < this->data_.size(); ++i) {
+            const Object* o = this->data_[i];
+            writeBinaryPOD(output, o->bufferlength());
+            output.write(o->buffer(), o->bufferlength());
+        }
+
         for (unsigned i = 0; i < totalElementsStored_; ++i) {
             const HnswNode& node = *ElList_[i];
             unsigned currlevel = node.level;
@@ -952,6 +959,21 @@ namespace similarity {
         fstdistfunc_ = nullptr;
         dist_func_type_ = kDistTypeUnknown;
         searchMethod_ = 0;
+
+        size_t qty;
+        readBinaryPOD(input, qty);
+
+        auto &data = const_cast<ObjectVector &>(this->data_);
+
+        for (unsigned i = 0; i < qty; ++i) {
+            size_t objSize;
+            readBinaryPOD(input, objSize);
+            unique_ptr<char []> buf(new char[objSize]);
+            input.read(&buf[0], objSize);
+            // true guarantees that the Object will take ownership of memory
+            // less than ideal, but ok for now
+            data.push_back(new Object(buf.release(), true));
+        }
 
         CHECK_MSG(totalElementsStored_ == this->data_.size(),
              "The number of stored elements " + ConvertToString(totalElementsStored_) +

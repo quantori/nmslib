@@ -37,12 +37,13 @@ class SpaceBitJaccard : public SpaceBitVector<dist_t,dist_uint_t> {
   explicit SpaceBitJaccard() {}
   virtual ~SpaceBitJaccard() {}
 
-  virtual std::string StrDesc() const { return "Jaccard (bit-storage) space"; }
+  virtual std::string StrDesc() const { return SPACE_BIT_JACCARD; }
 
  protected:
   virtual dist_t HiddenDistance(const Object* obj1, const Object* obj2) const {
     CHECK(obj1->datalength() > 0);
-    CHECK(obj1->datalength() == obj2->datalength());
+    CHECK_MSG(obj1->datalength() == obj2->datalength(),
+        ConvertToString(obj1->datalength()) + " " + ConvertToString(obj2->datalength()));
     const dist_uint_t* x = reinterpret_cast<const dist_uint_t*>(obj1->data());
     const dist_uint_t* y = reinterpret_cast<const dist_uint_t*>(obj2->data());
     const size_t length = obj1->datalength() / sizeof(dist_uint_t)

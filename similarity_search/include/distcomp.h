@@ -255,7 +255,8 @@ unsigned IntersectSizeScalarStand(const IdType *pArr1, size_t qty1, const IdType
 unsigned IntersectSizeScalar3way(const IdType *pArr1, size_t qty1, const IdType *pArr2, size_t qty2, const IdType* pArr3, size_t qty3);
 
 inline float JaccardSparse(const IdType *pArr1, size_t qty1, const IdType *pArr2, size_t qty2) {
-  if (!qty1 || !qty2) return 0; // let's say it's perfect overlap
+  if (!qty1 && !qty2) return 0;
+  if (!qty1 || !qty2) return 1;
   unsigned qtyInter = IntersectSizeScalarFast(pArr1, qty1, pArr2, qty2);
   float    qtyS = qty1 + qty2;
   return 1 - qtyInter/(qtyS - qtyInter);
